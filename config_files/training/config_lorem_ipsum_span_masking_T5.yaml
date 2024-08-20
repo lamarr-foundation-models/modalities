@@ -30,7 +30,7 @@ tokenizer:
 
 collate_fn:  
   component_key: collate_fn
-  variant_key: span_masking_collator_wrapper
+  variant_key: span_masking_collator
   config:
     sample_key: ${settings.referencing_keys.sample_key}
     target_key: ${settings.referencing_keys.target_key}
