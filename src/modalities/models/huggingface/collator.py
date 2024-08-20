@@ -113,9 +113,6 @@ class SpanMaskingCollateFn(CollateFnIF):
         # input_ids tokens and sentinel tokens are >= 0, tokens < 0 are
         # masked tokens coming after sentinel tokens and should be removed
         input_ids = input_ids_full[input_ids_full >= 0].reshape((batch_size, -1))
-        input_ids = np.concatenate(
-            [input_ids, np.full((batch_size, 1), self.tokenizer.tokenizer.eos_token_id)], axis=-1, dtype=np.int32
-        )
         return input_ids
 
     def random_spans_noise_mask(self, length: int) -> np.ndarray[bool]:
