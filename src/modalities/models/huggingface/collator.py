@@ -6,9 +6,7 @@ import torch.distributed
 from pydantic import BaseModel
 
 from modalities.batch import DatasetBatch
-from modalities.config.pydanctic_if_types import PydanticTokenizerIFType
 from modalities.models.gpt2.collator import CollateFnIF
-from modalities.tokenization.tokenizer_wrapper import TokenizerWrapper
 
 
 class SpanMaskingCollateFnConfig(BaseModel):
@@ -16,7 +14,7 @@ class SpanMaskingCollateFnConfig(BaseModel):
     target_key: str
     noise_density: float
     mean_noise_span_length: float
-    tokenizer: PydanticTokenizerIFType
+    vocab_size: int
 
 
 class SpanMaskingCollateFn(CollateFnIF):
@@ -33,13 +31,13 @@ class SpanMaskingCollateFn(CollateFnIF):
         target_key: str,
         noise_density: float,
         mean_noise_span_length: float,
-        tokenizer: TokenizerWrapper,
+        vocab_size: int,
     ):
         self.sample_key = sample_key
         self.target_key = target_key
         self.noise_density = noise_density
         self.mean_noise_span_length = mean_noise_span_length
-        self.tokenizer = tokenizer
+        self.vocab_size = vocab_size
 
     def __call__(self, batch: List[Dict[str, torch.Tensor]]) -> DatasetBatch:
         """The collator prepares data for an encoder-decoder model.
@@ -89,7 +87,7 @@ class SpanMaskingCollateFn(CollateFnIF):
         start_indices[:, 0] = mask_indices[:, 0]
 
         sentinel_ids = np.where(start_indices != 0, np.cumsum(start_indices, axis=-1), start_indices)
-        sentinel_ids = np.where(sentinel_ids != 0, (self.tokenizer.vocab_size - sentinel_ids), 0)
+        sentinel_ids = np.where(sentinel_ids != 0, (self.vocab_size - sentinel_ids), 0)
         sentinel_ids -= mask_indices - start_indices
 
         return sentinel_ids

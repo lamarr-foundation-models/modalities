@@ -3,7 +3,6 @@ import torch
 
 from modalities.config.config import PreTrainedHFTokenizerConfig
 from modalities.models.huggingface.collator import SpanMaskingCollateFn, SpanMaskingCollateFnConfig
-from modalities.tokenization.tokenizer_wrapper import PreTrainedHFTokenizer
 
 
 def tokenize(word: str):
@@ -21,19 +20,13 @@ def hf_tokenizer_config() -> PreTrainedHFTokenizerConfig:
 
 
 @pytest.fixture
-def dummy_tokenizer(hf_tokenizer_config):
-    # get the tokenizer
-    return PreTrainedHFTokenizer(**hf_tokenizer_config)
-
-
-@pytest.fixture
-def span_masking_config(dummy_tokenizer) -> SpanMaskingCollateFnConfig:
+def span_masking_config() -> SpanMaskingCollateFnConfig:
     return dict(
         sample_key="sample",
         target_key="target",
         noise_density=0.3,
         mean_noise_span_length=3.0,
-        tokenizer=dummy_tokenizer,
+        vocab_size=32100,
     )
 
 
@@ -55,9 +48,6 @@ def test_span_masking_collator(span_masking_config, batch):
     # Masked sample and masked target are shorter than input
     assert sample_ids.size()[-1] < input_ids.size()[-1]
     assert target_ids.size()[-1] < input_ids.size()[-1]
-    # Masked sample and masked target end with EOS token
-    assert sample_ids[:, -1].all() == span_masking_config["tokenizer"].tokenizer.eos_token_id
-    assert target_ids[:, -1].all() == span_masking_config["tokenizer"].tokenizer.eos_token_id
     # Text tokens are ascending (same order as input)
     assert (torch.diff(sample_ids[(sample_ids > 1) & (sample_ids < 32000)]) >= 1).all()
     assert (torch.diff(target_ids[(target_ids > 1) & (target_ids < 32000)]) >= 1).all()

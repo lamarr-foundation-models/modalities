@@ -36,9 +36,7 @@ collate_fn:
     target_key: ${settings.referencing_keys.target_key}
     noise_density: 0.3
     mean_noise_span_length: 3
-    tokenizer:
-      instance_key: tokenizer
-      pass_type: BY_REFERENCE
+    vocab_size: 32100
 
 train_dataset:
   component_key: dataset
