@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import torch
 import torch.nn as nn
+from transformers import LongT5ForConditionalGeneration, LongT5Model
 
 from modalities.batch import DatasetBatch, InferenceResultBatch
 
@@ -72,6 +73,9 @@ class SwiGLU(nn.Module):
 
 
 def model_predict_batch(model: nn.Module, batch: DatasetBatch) -> InferenceResultBatch:
-    forward_result = model.forward(batch.samples)
+    if model.model_type.value in [LongT5Model, LongT5ForConditionalGeneration]:
+        forward_result = model.forward(inputs=batch.samples, targets=batch.targets)
+    else:
+        forward_result = model.forward(inputs=batch.samples)
     result_batch = InferenceResultBatch(targets=batch.targets, predictions=forward_result)
     return result_batch
