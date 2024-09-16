@@ -96,7 +96,7 @@ class HuggingFacePretrainedModel(NNModel):
         return self.huggingface_model._no_split_modules
 
 
-class HuggingFacePretrainedEncoderDecoderModel(NNModel):
+class HuggingFacePretrainedEncoderDecoderModel(HuggingFacePretrainedModel):
     def __init__(
         self,
         model_type: HuggingFaceModelTypes,
@@ -125,7 +125,7 @@ class HuggingFacePretrainedEncoderDecoderModel(NNModel):
             # must set weight_decay_groups_excluded in config file to empty list
             weight_decay_groups = {}
 
-        super().__init__(weight_decay_groups=weight_decay_groups)
+        super(HuggingFacePretrainedModel, self).__init__(weight_decay_groups=weight_decay_groups)
         if model_args is None:
             model_args = []
         if kwargs is None:
@@ -174,10 +174,6 @@ class HuggingFacePretrainedEncoderDecoderModel(NNModel):
         shifted_input_ids = torch.roll(input_ids, 1, dims=1)
         shifted_input_ids[:, 0] = decoder_start_token_id
         return shifted_input_ids
-
-    @property
-    def fsdp_block_names(self) -> List[str]:
-        return self.huggingface_model._no_split_modules
 
 
 if __name__ == "__main__":
