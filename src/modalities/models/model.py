@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import torch
 import torch.nn as nn
+from transformers import LongT5ForConditionalGeneration, LongT5Model
 
 from modalities.batch import DatasetBatch, InferenceResultBatch
 
@@ -72,10 +73,7 @@ class SwiGLU(nn.Module):
 
 
 def model_predict_batch(model: nn.Module, batch: DatasetBatch) -> InferenceResultBatch:
-    # Ideally we would do this by checking isinstance(model, HuggingFacePretrainedEncoderDecoderModel),
-    # but HuggingFacePretrainedEncoderDecoderModel depends on NNModel from this file
-    # so this creates a circular dependency
-    if hasattr(model, "huggingface_model") and hasattr(model.huggingface_model, "encoder"):
+    if model.model_type.value in [LongT5Model, LongT5ForConditionalGeneration]:
         forward_result = model.forward(inputs=batch.samples, targets=batch.targets)
     else:
         forward_result = model.forward(inputs=batch.samples)

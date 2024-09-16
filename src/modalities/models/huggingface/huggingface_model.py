@@ -74,6 +74,8 @@ class HuggingFacePretrainedModel(NNModel):
             model_args = []
         if kwargs is None:
             kwargs = {}
+        self.model_type = model_type
+        self.model_name = model_name
         self.prediction_key = prediction_key
         self.huggingface_prediction_subscription_key = huggingface_prediction_subscription_key
         self.sample_key = sample_key
@@ -128,6 +130,8 @@ class HuggingFacePretrainedEncoderDecoderModel(NNModel):
             model_args = []
         if kwargs is None:
             kwargs = {}
+        self.model_type = model_type
+        self.model_name = model_name
         self.prediction_key = prediction_key
         self.huggingface_prediction_subscription_key = huggingface_prediction_subscription_key
         self.sample_key = sample_key
